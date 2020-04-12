@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
+  <Tracking>
+    <ImageTarget name="Water" size="5.000000 2.514735" />
+    <ImageTarget name="Oxygen" size="5.000000 7.551622" />
+    <ImageTarget name="Hydrogen" size="5.000000 7.529412" />
+    <ImageTarget name="suelo_piedra" size="5.000000 3.330671" />
+    <ImageTarget name="cesped-verde" size="5.000000 3.250000" />
+  </Tracking>
+</QCARConfig>

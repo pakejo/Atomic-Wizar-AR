@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 925744f98847ff345b68b26acc12920e
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Victograms Demo
+  fontNames:
+  - Victograms Demo
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 44e0d11075d9af241a529fc9db205400, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
