@@ -80,4 +80,129 @@ public class Controlador : MonoBehaviour
                 GameObject.Destroy(object_B.transform.GetChild(i).gameObject);
         }
     }
+
+
+
+    private List<string> readFormula(string formula)
+    {
+        List<string> resultado = new List<string>();
+        int cont_uppercase = 0;
+        string temp = "";
+
+        for (int i = 0; i < formula.Length; i++)
+        {
+
+            if (char.IsLetter(formula[i]))  // Comprobamos si el caracter actual es una letra
+            {
+
+                if (char.IsUpper(formula[i]))   // Si es mayuscula es porque es el 'comienzo' de un nuevo elemento
+                {
+
+                    if (cont_uppercase > 0)     // Este contador se usa para el caso de elementos de dos letras como Fe, Ag o para cuando un elemento sigue a otro Ej. HCl
+                    {
+
+                        if (temp.Length > 0)    // Si en nuestra solucion hay algo lo añadimos 
+                            resultado.Add(temp);
+
+                        resultado.Add("1");     // Para el segundo caso decimos que el elemento que hemos añadido tiene valencia, ya que esta no aparece en la formula
+                        temp = "";
+
+                        cont_uppercase--;       // cont_uppercase solo sera 0 y 1
+                    }
+                    temp += formula[i].ToString();
+                    cont_uppercase++;
+                }
+
+                else if (char.IsLower(formula[i]))  // Si hemos encontrado una letra minuscula es porque ese elemento tiene dos letras, asi que lo añadimos a la solucion temporal
+                {
+                    temp += formula[i];
+                    resultado.Add(temp);
+                    temp = "";
+                }
+
+
+                if (i == (formula.Length - 1))  // Esto solamente se usa cuando el ultimo elemento de la formula tiene valencia 1
+                {
+                    if (temp.Length > 0)
+                        resultado.Add(temp);
+                    resultado.Add("1");
+                }
+
+            }
+
+            else // Cuando detecta un nuemro si la solucion temporal tiene algo se añade y a continuacion el proximo valor
+            {
+                if (temp.Length > 0)
+                    resultado.Add(temp);
+                temp = formula[i].ToString();
+                resultado.Add(temp);
+                cont_uppercase = 0;
+                temp = "";
+            }
+        }
+        return resultado;
+    }
+    /*
+    * Ejemplo de la funcion anterior para H2SO4
+    * 
+    * Comenzamos con H. 
+    *  Pasa el primer if (es una letra)
+    *      Pasa el segundo if (es mayuscula)
+    *          No pasa el tercer if (cont_uppercase esta a 0)
+    *          Lo añadimos a temp e incrementamos cont_uppercase
+    * 
+    * Seguimos con '2'
+    *  No pasa el primer if. Se va al else
+    *  Añade lo que lleve en temp a la solucion y el 2 (Solucion: "H","2")
+    *  Ponemos cont_uppercase a 0 y vaciamos temp
+    *  
+    * Seguimos con S
+    *  Sucede igual que con H
+    * 
+    * Seguimos con O
+    *  Pasa el primer, segundo y tercer if (cont_uppercase esta a 1)
+    *  Añadimos lo que tenemos a la solucion (Solucion: "H","2","S")
+    *  Añadimos el valor 1 indicando que es la valencia del S (Solucion: "H","2","S","1")
+    *  Vaciamos temp y ponemos cont_uppercase a 0
+    *  
+    * Seguioms con '4'
+    *  Sucede igual que con '2', pero esta vez si pasa el if (Solucion: "H","2","S","1","O")
+    *  Añade el ultimo valor
+    *  
+    * Solucion: "H","2","S","1","O","4"
+    *  
+    */
+    private List<string> SortFormula(List<string> f)
+    {
+        List<string> formula_ordenada = new List<string>();
+        bool para = false;
+
+        //Buscamos elemento central
+        for (int i = 0; i < f.Count && !para; i++)
+        {
+
+            if ((f[i] != "H") && (f[i] != "O") && (!char.IsDigit(f[i], 0))) // IsDigit comprueba si un char se puede convertir a un valor numerico
+            {
+                formula_ordenada.Add(f[i]);
+                formula_ordenada.Add(f[i + 1]);
+                para = true;
+            }
+        }
+        //Añadimos el oxigeno (si hay)
+        int index = f.IndexOf("O");
+        if (index != -1)    // IndexOf devuelve -1 si no encuentra nada 
+        {
+            formula_ordenada.Add(f[index]);
+            formula_ordenada.Add(f[index + 1]);
+        }
+        // Añadimos el hidrogeno (si hay)
+        index = f.IndexOf("H");
+        if (index != -1)
+        {
+            formula_ordenada.Add(f[index]);
+            formula_ordenada.Add(f[index + 1]);
+        }
+        return formula_ordenada;
+    }
 }
+
