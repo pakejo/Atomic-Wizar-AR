@@ -34,6 +34,7 @@ public class Controlador : MonoBehaviour
         if (IsOnScene(object_A))
             CopyObjects();
 
+        List<string> formula = readFormula("O2");
     }
 
     // Comprueba si un objeto esta en la escena. Devuelve true si se detecta el objeto. False en caso contrario
@@ -140,6 +141,9 @@ public class Controlador : MonoBehaviour
                 temp = "";
             }
         }
+
+        //Ordenamos la formula 
+        resultado = SortFormula(resultado);
         return resultado;
     }
     /*
@@ -172,6 +176,11 @@ public class Controlador : MonoBehaviour
     * Solucion: "H","2","S","1","O","4"
     *  
     */
+
+    /*
+     * Esta funcion ordena la formula de forma que el elemento princiapl es el primero, 
+     * luego oxigeno y por ultimo hidrogeno
+     */
     private List<string> SortFormula(List<string> f)
     {
         List<string> formula_ordenada = new List<string>();
