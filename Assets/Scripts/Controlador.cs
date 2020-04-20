@@ -34,7 +34,7 @@ public class Controlador : MonoBehaviour
         if (IsOnScene(object_A))
             CopyObjects();
 
-        List<string> formula = readFormula("O2");
+        List<string> formula = readFormula("FeS");
     }
 
     // Comprueba si un objeto esta en la escena. Devuelve true si se detecta el objeto. False en caso contrario
@@ -184,17 +184,15 @@ public class Controlador : MonoBehaviour
     private List<string> SortFormula(List<string> f)
     {
         List<string> formula_ordenada = new List<string>();
-        bool para = false;
 
         //Buscamos elemento central
-        for (int i = 0; i < f.Count && !para; i++)
+        for (int i = 0; i < f.Count; i++)
         {
 
             if ((f[i] != "H") && (f[i] != "O") && (!char.IsDigit(f[i], 0))) // IsDigit comprueba si un char se puede convertir a un valor numerico
             {
                 formula_ordenada.Add(f[i]);
                 formula_ordenada.Add(f[i + 1]);
-                para = true;
             }
         }
         //Añadimos el oxigeno (si hay)
@@ -212,6 +210,81 @@ public class Controlador : MonoBehaviour
             formula_ordenada.Add(f[index + 1]);
         }
         return formula_ordenada;
+    }
+
+    /**
+     * El algorimo de dibujado principal
+     * Determina el tipo de formula y la dibuja
+     */
+    private void Algoritmo(string f)
+    {
+        //Determinar el tipo de formula
+        int tipo = GetTipo(f);
+
+        switch (tipo)
+        {
+            case 1:
+                // Crear tipo 1
+                break;
+            case 2:
+                // Crear tipo 2
+                break;
+            case 3:
+                // Crear tipo 3
+                break;
+            case 4:
+                // Crear tipo 4
+                break;
+            default:
+                // No hacer nada (lo más facil no cabe duda)
+                break;
+        }
+    }
+
+
+    /**
+     * Determina el tipo de una formula 
+     */
+    private int GetTipo(string f)
+    {
+        bool tiene_dos_elementos = false; // Quiere decir que tiene dos elementos que no sean O o H
+        bool tiene_oxigeno = false;
+        bool tiene_hidrogeno = false;
+        int tipo = 0;
+        //Varaibles auxiliares
+        int cont = 0;
+
+        //Determinar los elementos
+        for (int i = 0; i < f.Length; i += 2)
+        {
+            if (f[i] != 'H' && f[i] != 'O')
+                cont++;
+            else if (f[i] != 'H')
+                tiene_hidrogeno = true;
+            else if (f[i] != 'O')
+                tiene_oxigeno = true;
+        }
+
+        if (cont >= 2)
+            tiene_dos_elementos = true;
+
+        //Tipo 1: hidrogeno + elemento
+        if (!tiene_dos_elementos && !tiene_oxigeno && tiene_hidrogeno)
+            tipo = 1;
+
+        //Tipo 2: oxigeno + elemento
+        if (!tiene_dos_elementos && tiene_oxigeno && !tiene_hidrogeno)
+            tipo = 2;
+
+        //Tipo 3: elemento + elemento
+        if (tiene_dos_elementos && !tiene_oxigeno && !tiene_hidrogeno)
+            tipo = 3;
+
+        //Tipo 4: elemento + hidrogeno + oxigeno
+        if (!tiene_dos_elementos && tiene_oxigeno && tiene_hidrogeno)
+            tipo = 4;
+
+        return tipo;
     }
 }
 
