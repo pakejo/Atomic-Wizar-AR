@@ -1,4 +1,5 @@
 ﻿using Mono.Data.Sqlite;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using UnityEngine;
@@ -52,17 +53,18 @@ public class SQLiteHelper
      * @return Devuelve un string con la informacion asociada.
      * El string estará vacío si no hay ninguna entrada en la tabla con ese id
      */
-    public string GetInfoByID(string id)
+    public List<string> GetInfoByID(string id)
     {
-        string info = "";
+        List<string> info = new List<string>();
         IDbCommand dbcmd = this.dbConnection.CreateCommand();   // Para usar comandos SQL
         dbcmd.CommandText = "SELECT * FROM Elementos WHERE ID = '" + id + "'";
         IDataReader reader = dbcmd.ExecuteReader();
 
         while (reader.Read())
         {
-            info += reader[0].ToString();   // Simbolo elemento
-            info += reader[1].ToString();   // Valencias
+            info.Add(reader[0].ToString());   // Simbolo elemento
+            info.Add(reader[1].ToString());   // Valencias
+            info.Add(reader[2].ToString());   // Radio atomico
         }
         return info;
     }

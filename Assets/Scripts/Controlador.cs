@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
@@ -224,7 +225,7 @@ public class Controlador : MonoBehaviour
         switch (tipo)
         {
             case 1:
-                // Crear tipo 1
+                dibujarTipo1(f);
                 break;
             case 2:
                 // Crear tipo 2
@@ -285,6 +286,34 @@ public class Controlador : MonoBehaviour
             tipo = 4;
 
         return tipo;
+    }
+
+    private void dibujarTipo1(string f)
+    {
+
+    }
+
+    private void crearElemento(string tipo, GameObject padre)
+    {
+        // Crear la primitiva
+        GameObject objeto = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+        // Obtener el material
+        SQLiteHelper conexion_BD = new SQLiteHelper();
+        string material_objeto = conexion_BD.GetMaterialOf(tipo);
+        string ruta_material = "Materials/" + material_objeto;
+        Material mat = Resources.Load<Material>(ruta_material);
+
+        // Obtener el radio
+        int radio;
+        List<string> info = conexion_BD.GetInfoByID(tipo);
+        radio = Convert.ToInt32(info[2]);
+
+        // Transformaciones del objeto
+        objeto.transform.GetComponent<Renderer>().material = mat;
+        objeto.transform.parent = padre.transform;
+        objeto.transform.localScale = new Vector3(radio, radio, radio);
+        objeto.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.4f, object_B.transform.position.z);
     }
 }
 
