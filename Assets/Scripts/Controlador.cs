@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
@@ -8,6 +9,7 @@ public class Controlador : MonoBehaviour
     // Objetos de la escena
     private GameObject object_A;
     private GameObject object_B;
+    public string input;
 
 
     private int cont = 0;
@@ -33,6 +35,7 @@ public class Controlador : MonoBehaviour
 
         if (IsOnScene(object_A))
             CopyObjects();
+        
 
         List<string> formula = readFormula("FeS");
     }
@@ -245,7 +248,7 @@ public class Controlador : MonoBehaviour
     /**
      * Determina el tipo de una formula 
      */
-    private int GetTipo(string f)
+    public int GetTipo(string f)
     {
         bool tiene_dos_elementos = false; // Quiere decir que tiene dos elementos que no sean O o H
         bool tiene_oxigeno = false;
@@ -285,6 +288,27 @@ public class Controlador : MonoBehaviour
             tipo = 4;
 
         return tipo;
+    }
+
+    /*Método que se ejecuta cuando se pulsa el botón Introducir
+      Cambiar para lo que se desee    
+    */
+    public void show()
+    {
+        Debug.Log("Se ha insertado el componente " + input);
+    }
+
+    /*Método que se ejecutará cada vez que el valor del campo de texto se modifique en tiempo real
+      El parámetro string esta cambiado para que lo vaya cogiendo dinámicamente, en caso de que se quiera utilizar
+      o introducir un string manual, cambiar el onValueChanged de Field por la llamada al mismo método pero 
+      con el parámetro string que se le quiera poner
+      
+      IMPORTANTE: el input = s es imprescindible por lo tanto, no cambiar bajo ningun concepto
+    */
+    public void inputCapture(string s)
+    {
+        input = s;
+        Debug.Log(input);
     }
 }
 
