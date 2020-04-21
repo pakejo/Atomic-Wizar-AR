@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Vuforia;
 
 public class Controlador : MonoBehaviour
@@ -10,6 +11,7 @@ public class Controlador : MonoBehaviour
     private GameObject object_A;
     private GameObject object_B;
     public string input;
+    private GameObject button, inputField, probeText;
 
 
     private int cont = 0;
@@ -23,6 +25,9 @@ public class Controlador : MonoBehaviour
         // Obtenemos los objetos que representan a las cartas
         object_A = this.transform.GetChild(0).gameObject;
         object_B = this.transform.GetChild(1).gameObject;
+        button = GameObject.Find("EnterButton");
+        inputField = GameObject.Find("Input");
+        probeText = GameObject.Find("ProbeText");
 
     }
 
@@ -376,6 +381,21 @@ public class Controlador : MonoBehaviour
     public void inputCapture(string s)
     {
         input = s;
+        if (input == "hola" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+        {
+            button.GetComponent<Button>().interactable = true;
+            inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
+            probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
+            probeText.GetComponent<Text>().color = Color.green;
+        }
+        else
+        {
+            button.GetComponent<Button>().interactable = false;
+            inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(250, 31, 85, 145);
+            probeText.GetComponent<Text>().text = "La fórmula introducida no es correcta";
+            probeText.GetComponent<Text>().color = Color.red;
+        }
+
         Debug.Log(input);
     }
 }
