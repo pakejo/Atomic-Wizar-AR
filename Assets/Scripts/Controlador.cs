@@ -15,6 +15,8 @@ public class Controlador : MonoBehaviour
     private int cont = 0;
     private bool esta_cerca = false;
 
+    private bool debug = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,11 +35,13 @@ public class Controlador : MonoBehaviour
             DetectObjectsPosition(ref object_A, ref object_B);
         }*/
 
-        if (IsOnScene(object_A))
-            CopyObjects();
-        
+        List<string> formula = readFormula("S2Cl3");
 
-        List<string> formula = readFormula("FeS");
+        if (!debug)
+        {
+            Algoritmo(formula);
+            debug = true;
+        }
     }
 
     // Comprueba si un objeto esta en la escena. Devuelve true si se detecta el objeto. False en caso contrario
@@ -219,7 +223,7 @@ public class Controlador : MonoBehaviour
      * El algorimo de dibujado principal
      * Determina el tipo de formula y la dibuja
      */
-    private void Algoritmo(string f)
+    private void Algoritmo(List<string> f)
     {
         //Determinar el tipo de formula
         int tipo = GetTipo(f);
@@ -227,13 +231,13 @@ public class Controlador : MonoBehaviour
         switch (tipo)
         {
             case 1:
-                dibujarTipo1(f);
+
                 break;
             case 2:
                 // Crear tipo 2
                 break;
             case 3:
-                // Crear tipo 3
+                dibujarTipo3(f);
                 break;
             case 4:
                 // Crear tipo 4
@@ -248,7 +252,7 @@ public class Controlador : MonoBehaviour
     /**
      * Determina el tipo de una formula 
      */
-    public int GetTipo(string f)
+    public int GetTipo(List<string> f)
     {
         bool tiene_dos_elementos = false; // Quiere decir que tiene dos elementos que no sean O o H
         bool tiene_oxigeno = false;
@@ -258,13 +262,13 @@ public class Controlador : MonoBehaviour
         int cont = 0;
 
         //Determinar los elementos
-        for (int i = 0; i < f.Length; i += 2)
+        for (int i = 0; i < f.Count; i += 2)
         {
-            if (f[i] != 'H' && f[i] != 'O')
+            if (f[i] != "H" && f[i] != "O")
                 cont++;
-            else if (f[i] != 'H')
+            else if (f[i] != "H")
                 tiene_hidrogeno = true;
-            else if (f[i] != 'O')
+            else if (f[i] != "O")
                 tiene_oxigeno = true;
         }
 
@@ -290,12 +294,43 @@ public class Controlador : MonoBehaviour
         return tipo;
     }
 
-    private void dibujarTipo1(string f)
+    private void dibujarTipo3(List<string> f)
     {
+        //Paso 1: Dibujar elemento de menor numero
+        int n_1 = Convert.ToInt32(f[1]);
+        int n_2 = Convert.ToInt32(f[3]);
+
+        if (n_1 < n_2)
+        {
+            float radio = crearElemento(f[0], object_B);
+
+            //Obtenenmos su referencia para trabajar sobre el resto de esferas
+            GameObject primera = object_B.transform.GetChild(0).gameObject;
+            primera.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.5f, object_B.transform.position.z);
+
+            //Añadimos las esferas restantes del mismo tipo
+            for (int i = 1; i < n_1; i++)
+            {
+                radio = crearElemento(f[0], primera);
+                primera.transform.GetChild(i - 1).Translate(radio/2, 0, 0);
+            }
+
+            // Añadimos el segundo tipo
+            for(int i = 0; i < 1; i++)
+            { 
+                radio = crearElemento(f[2], primera);
+                primera.transform.GetChild(i+1).Translate(radio, 0, 0);
+                primera.transform.GetChild(i+1).Rotate(0, 0, 0);
+            }
+        }
+        else
+        {
+
+        }
 
     }
 
-    private void crearElemento(string tipo, GameObject padre)
+    private float crearElemento(string tipo, GameObject padre)
     {
         // Crear la primitiva
         GameObject objeto = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -313,9 +348,16 @@ public class Controlador : MonoBehaviour
 
         // Transformaciones del objeto
         objeto.transform.GetComponent<Renderer>().material = mat;
+        objeto.transform.localScale = new Vector3(radio / 500.0f, radio / 500.0f, radio / 500.0f);
         objeto.transform.parent = padre.transform;
-        objeto.transform.localScale = new Vector3(radio, radio, radio);
-        objeto.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.4f, object_B.transform.position.z);
+        objeto.transform.position = new Vector3(padre.transform.position.x, padre.transform.position.y + 0.5f, padre.transform.position.z);
+
+        return radio / 500.0f;
+    }
+
+
+
+
     /*Método que se ejecuta cuando se pulsa el botón Introducir
       Cambiar para lo que se desee    
     */

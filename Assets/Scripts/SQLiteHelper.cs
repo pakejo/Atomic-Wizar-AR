@@ -57,7 +57,7 @@ public class SQLiteHelper
     {
         List<string> info = new List<string>();
         IDbCommand dbcmd = this.dbConnection.CreateCommand();   // Para usar comandos SQL
-        dbcmd.CommandText = "SELECT * FROM Elementos WHERE ID = '" + id + "'";
+        dbcmd.CommandText = "SELECT * FROM Elementos WHERE Simbolo = '" + id + "'";
         IDataReader reader = dbcmd.ExecuteReader();
 
         while (reader.Read())
@@ -73,7 +73,12 @@ public class SQLiteHelper
     {
         string material = "";
         IDbCommand dbcmd = this.dbConnection.CreateCommand();   // Para usar comandos SQL
-        dbcmd.CommandText = "SELECT material FROM Materiales WHERE ID = '" + element + "'";
+
+        if (element.Length > 2)
+            dbcmd.CommandText = "SELECT material FROM Materiales WHERE ID = '" + element + "'";
+        else
+            dbcmd.CommandText = "SELECT material FROM Materiales WHERE Simbolo = '" + element + "'";
+
         IDataReader reader = dbcmd.ExecuteReader();
 
         while (reader.Read())
