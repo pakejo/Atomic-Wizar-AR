@@ -23,14 +23,14 @@ public class SQLiteHelper
         filepath = Application.streamingAssetsPath + "/Test.db";
 #elif UNITY_ANDROID
 
-        if(!File.Exists(filepath))
-        {
+        //if(!File.Exists(filepath))
+       // {
             UnityWebRequest www = UnityWebRequest.Get("jar:file://" + Application.dataPath + "!/assets/" + "Test.db");
             www.SendWebRequest();
             while(!www.isDone) { }
 
             File.WriteAllBytes(filepath, www.downloadHandler.data);
-        }
+       // }
 #endif
 
         string connection = "URI=file:" + filepath;

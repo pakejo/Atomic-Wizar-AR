@@ -14,7 +14,7 @@ public class Controlador : MonoBehaviour
     private GameObject object_B;
     public string input;
     private GameObject button, inputField, probeText;
-
+    SQLiteHelper conexion_BD;
 
     private int cont = 0;
     private bool esta_cerca = false;
@@ -26,6 +26,7 @@ public class Controlador : MonoBehaviour
     void Start()
     {
         animaciones = new Animacion();
+        conexion_BD = new SQLiteHelper();
 
         // Obtenemos los objetos que representan a las cartas
         object_A = this.transform.GetChild(0).gameObject;
@@ -42,21 +43,13 @@ public class Controlador : MonoBehaviour
             DetectObjectsPosition(ref object_A, ref object_B);
         }*/
 
-        //List<string> formula = readFormula("NaCl");
-        List<string> formula = readFormula("Fe2S3");
-        //List<string> formula = readFormula("Li2S");
-        //List<string> formula = readFormula("PbCl2");
 
-        if (!debug)
-        {
-            Algoritmo(formula);
-            debug = true;
-        }
 
         if (object_B.transform.childCount > 0)
         {
             animaciones.setTarget(object_B.transform.GetChild(0).gameObject);
             animaciones.automaticRotation();
+            //animaciones.scalingEvent();
         }
     }
 
@@ -316,7 +309,7 @@ public class Controlador : MonoBehaviour
         int n_1 = Convert.ToInt32(f[1]);
         int n_2 = Convert.ToInt32(f[3]);
 
-        if (n_1 <= n_2)
+         if (n_1 <= n_2)
         {
             float radio = crearElemento(f[0], object_B);
             float radio_esfera_1 = radio;
@@ -358,7 +351,6 @@ public class Controlador : MonoBehaviour
         GameObject objeto = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
         // Obtener el material
-        SQLiteHelper conexion_BD = new SQLiteHelper();
         string material_objeto = conexion_BD.GetMaterialOf(tipo);
         string ruta_material = "Materials/" + material_objeto;
         Material mat = Resources.Load<Material>(ruta_material);
@@ -414,6 +406,17 @@ public class Controlador : MonoBehaviour
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
                 probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
                 probeText.GetComponent<Text>().color = Color.green;
+
+                List<string> formula = readFormula("NaCl");
+                //List<string> formula = readFormula("Fe2S3");
+                //List<string> formula = readFormula("Li2S");
+                //List<string> formula = readFormula("PbCl2");
+
+                if (!debug)
+                {
+                    Algoritmo(formula);
+                    debug = true;
+                }
             }
             else
             {
