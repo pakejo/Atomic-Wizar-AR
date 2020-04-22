@@ -20,10 +20,13 @@ public class Controlador : MonoBehaviour
     private bool esta_cerca = false;
 
     private bool debug = false;
+    private Animacion animaciones;
 
     // Start is called before the first frame update
     void Start()
     {
+        animaciones = new Animacion();
+
         // Obtenemos los objetos que representan a las cartas
         object_A = this.transform.GetChild(0).gameObject;
         object_B = this.transform.GetChild(1).gameObject;
@@ -48,6 +51,12 @@ public class Controlador : MonoBehaviour
         {
             Algoritmo(formula);
             debug = true;
+        }
+
+        if (object_B.transform.childCount > 0)
+        {
+            animaciones.setTarget(object_B.transform.GetChild(0).gameObject);
+            animaciones.automaticRotation();
         }
     }
 
