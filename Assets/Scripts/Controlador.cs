@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 using Vuforia;
 
@@ -25,9 +27,6 @@ public class Controlador : MonoBehaviour
         // Obtenemos los objetos que representan a las cartas
         object_A = this.transform.GetChild(0).gameObject;
         object_B = this.transform.GetChild(1).gameObject;
-        button = GameObject.Find("EnterButton");
-        inputField = GameObject.Find("Input");
-        probeText = GameObject.Find("ProbeText");
 
     }
 
@@ -40,7 +39,10 @@ public class Controlador : MonoBehaviour
             DetectObjectsPosition(ref object_A, ref object_B);
         }*/
 
-        List<string> formula = readFormula("S2Cl3");
+        //List<string> formula = readFormula("NaCl");
+        List<string> formula = readFormula("Fe2S3");
+        //List<string> formula = readFormula("Li2S");
+        //List<string> formula = readFormula("PbCl2");
 
         if (!debug)
         {
@@ -305,9 +307,10 @@ public class Controlador : MonoBehaviour
         int n_1 = Convert.ToInt32(f[1]);
         int n_2 = Convert.ToInt32(f[3]);
 
-        if (n_1 < n_2)
+        if (n_1 <= n_2)
         {
             float radio = crearElemento(f[0], object_B);
+            float radio_esfera_1 = radio;
 
             //Obtenenmos su referencia para trabajar sobre el resto de esferas
             GameObject primera = object_B.transform.GetChild(0).gameObject;
@@ -317,15 +320,20 @@ public class Controlador : MonoBehaviour
             for (int i = 1; i < n_1; i++)
             {
                 radio = crearElemento(f[0], primera);
-                primera.transform.GetChild(i - 1).Translate(radio/2, 0, 0);
+                primera.transform.GetChild(i - 1).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
+                primera.transform.GetChild(i - 1).Translate(radio / 2, 0, 0);
+                //primera.transform.GetChild(i - 1).transform.RotateAroundLocal(new Vector3(0, 1, 0), (360 / n_1) * i);
             }
 
             // Añadimos el segundo tipo
-            for(int i = 0; i < 1; i++)
-            { 
+            int aux = n_1 - 1;
+
+            for (int i = 0; i < n_2; i++)
+            {
                 radio = crearElemento(f[2], primera);
-                primera.transform.GetChild(i+1).Translate(radio, 0, 0);
-                primera.transform.GetChild(i+1).Rotate(0, 0, 0);
+                primera.transform.GetChild(i + aux).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
+                primera.transform.GetChild(i + aux).Translate(-radio_esfera_1 / 2, 0, 0);
+                primera.transform.GetChild(i + aux).transform.RotateAround(primera.transform.position, new Vector3(0, 1, 0), (360.0f / n_2) * i);
             }
         }
         else
@@ -381,22 +389,33 @@ public class Controlador : MonoBehaviour
     public void inputCapture(string s)
     {
         input = s;
-        if (input == "hola" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+
+        if (button == null)
         {
-            button.GetComponent<Button>().interactable = true;
-            inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
-            probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
-            probeText.GetComponent<Text>().color = Color.green;
+            button = GameObject.Find("EnterButton");
+            inputField = GameObject.Find("Input");
+            probeText = GameObject.Find("ProbeText");
         }
         else
         {
-            button.GetComponent<Button>().interactable = false;
-            inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(250, 31, 85, 145);
-            probeText.GetComponent<Text>().text = "La fórmula introducida no es correcta";
-            probeText.GetComponent<Text>().color = Color.red;
-        }
 
-        Debug.Log(input);
+            if (input == "hola" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+            {
+                button.GetComponent<Button>().interactable = true;
+                inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
+                probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
+                probeText.GetComponent<Text>().color = Color.green;
+            }
+            else
+            {
+                button.GetComponent<Button>().interactable = false;
+                inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(250, 31, 85, 145);
+                probeText.GetComponent<Text>().text = "La fórmula introducida no es correcta";
+                probeText.GetComponent<Text>().color = Color.red;
+            }
+
+            Debug.Log(input);
+        }
     }
 }
 
