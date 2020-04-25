@@ -306,41 +306,55 @@ public class Controlador : MonoBehaviour
     private void dibujarTipo3(List<string> f)
     {
         //Paso 1: Dibujar elemento de menor numero
-        int n_1 = Convert.ToInt32(f[1]);
-        int n_2 = Convert.ToInt32(f[3]);
+        int a = Convert.ToInt32(f[1]);
+        int b = Convert.ToInt32(f[3]);
+        int n_1;
+        int n_2;
+        int aux;
+        string primer_elemento_a_crear;
+        string segundo_elemento_a_crear;
 
-         if (n_1 <= n_2)
+        if (a <= b)
         {
-            float radio = crearElemento(f[0], object_B);
-            float radio_esfera_1 = radio;
-
-            //Obtenenmos su referencia para trabajar sobre el resto de esferas
-            GameObject primera = object_B.transform.GetChild(0).gameObject;
-            primera.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.5f, object_B.transform.position.z);
-
-            //Añadimos las esferas restantes del mismo tipo
-            for (int i = 1; i < n_1; i++)
-            {
-                radio = crearElemento(f[0], primera);
-                primera.transform.GetChild(i - 1).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
-                primera.transform.GetChild(i - 1).Translate(radio / 2, 0, 0);
-                //primera.transform.GetChild(i - 1).transform.RotateAroundLocal(new Vector3(0, 1, 0), (360 / n_1) * i);
-            }
-
-            // Añadimos el segundo tipo
-            int aux = n_1 - 1;
-
-            for (int i = 0; i < n_2; i++)
-            {
-                radio = crearElemento(f[2], primera);
-                primera.transform.GetChild(i + aux).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
-                primera.transform.GetChild(i + aux).Translate(-radio_esfera_1 / 2, 0, 0);
-                primera.transform.GetChild(i + aux).transform.RotateAround(primera.transform.position, new Vector3(0, 1, 0), (360.0f / n_2) * i);
-            }
+            n_1 = a;
+            n_2 = b;
+            primer_elemento_a_crear = f[0];
+            segundo_elemento_a_crear = f[2];
         }
         else
         {
+            n_1 = b;
+            n_2 = a;
+            primer_elemento_a_crear = f[2];
+            segundo_elemento_a_crear = f[0];
+        }
 
+
+        float radio = crearElemento(primer_elemento_a_crear, object_B);
+        float radio_esfera_1 = radio;
+
+        //Obtenenmos su referencia para trabajar sobre el resto de esferas
+        GameObject primera = object_B.transform.GetChild(0).gameObject;
+        primera.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.5f, object_B.transform.position.z);
+
+        //Añadimos las esferas restantes del mismo tipo
+        for (int i = 1; i < n_1; i++)
+        {
+            radio = crearElemento(primer_elemento_a_crear, primera);
+            primera.transform.GetChild(i - 1).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
+            primera.transform.GetChild(i - 1).Translate(radio / 2, 0, 0);
+            //primera.transform.GetChild(i - 1).transform.RotateAroundLocal(new Vector3(0, 1, 0), (360 / n_1) * i);
+        }
+
+        // Añadimos el segundo tipo
+        aux = n_1 - 1;
+
+        for (int i = 0; i < n_2; i++)
+        {
+            radio = crearElemento(segundo_elemento_a_crear, primera);
+            primera.transform.GetChild(i + aux).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
+            primera.transform.GetChild(i + aux).Translate(-(radio_esfera_1 / 2) - (radio / 3), 0, 0);
+            primera.transform.GetChild(i + aux).transform.RotateAround(primera.transform.position, new Vector3(0, 1, 0), (360.0f / n_2) * i);
         }
 
     }
@@ -380,7 +394,7 @@ public class Controlador : MonoBehaviour
         Debug.Log("Se ha insertado el componente " + input);
         List<string> formula = readFormula(input);
         Algoritmo(formula);
- 
+
     }
 
     /*Método que se ejecutará cada vez que el valor del campo de texto se modifique en tiempo real
@@ -403,7 +417,7 @@ public class Controlador : MonoBehaviour
         else
         {
 
-            if (input == "NaCl" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+            if (input == "Fe2S3" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
             {
                 button.GetComponent<Button>().interactable = true;
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
