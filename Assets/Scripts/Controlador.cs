@@ -378,6 +378,9 @@ public class Controlador : MonoBehaviour
     public void show()
     {
         Debug.Log("Se ha insertado el componente " + input);
+        List<string> formula = readFormula(input);
+        Algoritmo(formula);
+ 
     }
 
     /*Método que se ejecutará cada vez que el valor del campo de texto se modifique en tiempo real
@@ -400,23 +403,23 @@ public class Controlador : MonoBehaviour
         else
         {
 
-            if (input == "hola" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+            if (input == "NaCl" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
             {
                 button.GetComponent<Button>().interactable = true;
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
                 probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
                 probeText.GetComponent<Text>().color = Color.green;
 
-                List<string> formula = readFormula("NaCl");
+                //List<string> formula = readFormula("NaCl");
                 //List<string> formula = readFormula("Fe2S3");
                 //List<string> formula = readFormula("Li2S");
                 //List<string> formula = readFormula("PbCl2");
 
-                if (!debug)
+                /*if (!debug)
                 {
                     Algoritmo(formula);
                     debug = true;
-                }
+                }*/
             }
             else
             {
