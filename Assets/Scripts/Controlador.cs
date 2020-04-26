@@ -417,7 +417,7 @@ public class Controlador : MonoBehaviour
         else
         {
 
-            if (input == "Fe2S3" /*Expresion que busca en la BD si el string introducido tiene una formula o un nombre asociado*/)
+            if (input == "Fe2S3" || input == "NaCl" || input == "Li2S" || input == "PbCl2")
             {
                 button.GetComponent<Button>().interactable = true;
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
