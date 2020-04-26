@@ -386,13 +386,23 @@ public class Controlador : MonoBehaviour
 
 
 
-    /*Método que se ejecuta cuando se pulsa el botón Introducir
-      Cambiar para lo que se desee    
+    /*
+     * Método que se ejecuta cuando se pulsa el botón Introducir.
+     * Cambiar para lo que se desee    
     */
     public void show()
     {
         Debug.Log("Se ha insertado el componente " + input);
         List<string> formula = readFormula(input);
+
+        if (object_B.transform.childCount > 0)
+        {
+            GameObject obj = object_B.transform.GetChild(0).gameObject;
+            obj.transform.parent = null;
+            GameObject.Destroy(obj);
+        }
+
+
         Algoritmo(formula);
 
     }
@@ -428,12 +438,6 @@ public class Controlador : MonoBehaviour
                 //List<string> formula = readFormula("Fe2S3");
                 //List<string> formula = readFormula("Li2S");
                 //List<string> formula = readFormula("PbCl2");
-
-                /*if (!debug)
-                {
-                    Algoritmo(formula);
-                    debug = true;
-                }*/
             }
             else
             {
