@@ -4,10 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class AddUIManager : MonoBehaviour
 {
-    RectTransform rectTransform;
+    private RectTransform rectTransform;
 
     #region Getter
-    static AddUIManager instance;
+
+    private static AddUIManager instance;
+
     public static AddUIManager Instance
     {
         get
@@ -19,9 +21,10 @@ public class AddUIManager : MonoBehaviour
             return instance;
         }
     }
+
     #endregion Getter
 
-    void Start()
+    private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
         rectTransform.DOAnchorPosX(rectTransform.rect.width, 0f);

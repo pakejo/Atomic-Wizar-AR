@@ -1,104 +1,79 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
-using Vuforia;
+
+/*
+ * #########################################################################
+ * # CLASE PRINCIPAL DE LA APLICACIÓN, ENCARGDA DE TODA LA GESTIÓN DE ÉSTA #
+ * #########################################################################
+ */
 
 public class Controlador : MonoBehaviour
 {
-    // Objetos de la escena
-    private GameObject object_A;
-    private GameObject object_B;
-    public string input;
-    private GameObject button, inputField, probeText;
-    SQLiteHelper conexion_BD;
-
-    private int cont = 0;
-    private bool esta_cerca = false;
-
-    private bool debug = false;
+    private GameObject object_B, button, inputField, probeText;
+    private SQLiteHelper conexion_BD;
     private Animacion animaciones;
+    public string input;
 
-    // Start is called before the first frame update
-    void Start()
+    /*
+     * Función de Unity usada para inicializar los datos de la clase
+     */
+
+    private void Start()
     {
         animaciones = new Animacion();
         conexion_BD = new SQLiteHelper();
 
         // Obtenemos los objetos que representan a las cartas
-        object_A = this.transform.GetChild(0).gameObject;
-        object_B = this.transform.GetChild(1).gameObject;
-
+        object_B = transform.GetChild(1).gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
+    /*
+     * Función de Unity llamada durante cada frame para actualizar la escena
+     */
+
+    private void Update()
     {
-        // Si los dos objetos están presentes comprobar la distancias de ambos
-        /*if (IsOnScene(object_A) || IsOnScene(object_B))
-        {
-            DetectObjectsPosition(ref object_A, ref object_B);
-        }*/
-
-
-
         if (object_B.transform.childCount > 0)
         {
             animaciones.setTarget(object_B.transform.GetChild(0).gameObject);
             animaciones.automaticRotation();
-            //animaciones.scalingEvent();
         }
     }
 
-    // Comprueba si un objeto esta en la escena. Devuelve true si se detecta el objeto. False en caso contrario
-    private bool IsOnScene(GameObject objeto)
-    {
-        TrackableBehaviour trackableBehaviour = objeto.GetComponent<TrackableBehaviour>();
-
-        TrackableBehaviour.Status currentStatus = trackableBehaviour.CurrentStatus;
-
-        if (currentStatus == TrackableBehaviour.Status.DETECTED || currentStatus == TrackableBehaviour.Status.TRACKED)
-            return true;
-
-        return false;
-    }
-
-    // Comprueba la posicion del objeto A resoect del objeto B
-    private void DetectObjectsPosition(ref GameObject gameObjectA, ref GameObject gameObjectB)
-    {
-        float distancia_min = 1.0f;
-        float distancia_real = Mathf.Abs(object_A.transform.position.x - object_B.transform.position.x);
-
-        if ((distancia_real <= distancia_min) && esta_cerca)
-        {
-            cont++;
-            cont = cont % 2;
-            //Llamar a funcion de copia
-            esta_cerca = false;
-        }
-
-        if (distancia_real > distancia_min)
-            esta_cerca = true;
-
-    }
-
-    private void CopyObjects(/*Vector3 position*/)
-    {
-
-        if (object_B.transform.childCount > 0)
-        {
-            for (int i = 0; i < object_B.transform.childCount; i++)
-                Instantiate(object_B.transform.GetChild(i), object_A.transform);
-
-            for (int i = 0; i < object_B.transform.childCount; i++)
-                GameObject.Destroy(object_B.transform.GetChild(i).gameObject);
-        }
-    }
-
-
+    /*
+     * Funcion que lee y transcribe una formula.
+     * Devuelve la formula procesada en una lista.
+     *
+     * Ejemplo para H2SO4
+     *
+     * Comenzamos con H.
+     *  Pasa el primer if (es una letra)
+     *      Pasa el segundo if (es mayuscula)
+     *          No pasa el tercer if (cont_uppercase esta a 0)
+     *          Lo añadimos a temp e incrementamos cont_uppercase
+     *
+     * Seguimos con '2'
+     *  No pasa el primer if. Se va al else
+     *  Añade lo que lleve en temp a la solucion y el 2 (Solucion: "H","2")
+     *  Ponemos cont_uppercase a 0 y vaciamos temp
+     *
+     * Seguimos con S
+     *  Sucede igual que con H
+     *
+     * Seguimos con O
+     *  Pasa el primer, segundo y tercer if (cont_uppercase esta a 1)
+     *  Añadimos lo que tenemos a la solucion (Solucion: "H","2","S")
+     *  Añadimos el valor 1 indicando que es la valencia del S (Solucion: "H","2","S","1")
+     *  Vaciamos temp y ponemos cont_uppercase a 0
+     *
+     * Seguioms con '4'
+     *  Sucede igual que con '2', pero esta vez si pasa el if (Solucion: "H","2","S","1","O")
+     *  Añade el ultimo valor
+     *
+     * Solucion: "H","2","S","1","O","4"
+     */
 
     private List<string> readFormula(string formula)
     {
@@ -108,46 +83,45 @@ public class Controlador : MonoBehaviour
 
         for (int i = 0; i < formula.Length; i++)
         {
-
-            if (char.IsLetter(formula[i]))  // Comprobamos si el caracter actual es una letra
+            // Comprobamos si el caracter actual es una letra
+            if (char.IsLetter(formula[i]))
             {
-
-                if (char.IsUpper(formula[i]))   // Si es mayuscula es porque es el 'comienzo' de un nuevo elemento
+                // Si es mayuscula es porque es el 'comienzo' de un nuevo elemento
+                if (char.IsUpper(formula[i]))
                 {
-
-                    if (cont_uppercase > 0)     // Este contador se usa para el caso de elementos de dos letras como Fe, Ag o para cuando un elemento sigue a otro Ej. HCl
+                    // Este contador se usa para el caso de elementos de dos letras como Fe, Ag o para cuando un elemento sigue a otro Ej. HCl
+                    if (cont_uppercase > 0)
                     {
-
-                        if (temp.Length > 0)    // Si en nuestra solucion hay algo lo añadimos 
+                        // Si en nuestra solucion hay algo lo añadimos
+                        if (temp.Length > 0)
                             resultado.Add(temp);
-
-                        resultado.Add("1");     // Para el segundo caso decimos que el elemento que hemos añadido tiene valencia, ya que esta no aparece en la formula
+                        // Para el segundo caso decimos que el elemento que hemos añadido tiene valencia, ya que esta no aparece en la formula
+                        resultado.Add("1");
                         temp = "";
-
-                        cont_uppercase--;       // cont_uppercase solo sera 0 y 1
+                        // cont_uppercase solo sera 0 y 1
+                        cont_uppercase--;
                     }
                     temp += formula[i].ToString();
                     cont_uppercase++;
                 }
-
-                else if (char.IsLower(formula[i]))  // Si hemos encontrado una letra minuscula es porque ese elemento tiene dos letras, asi que lo añadimos a la solucion temporal
+                // Si hemos encontrado una letra minuscula es porque ese elemento tiene dos letras, asi que lo añadimos a la solucion temporal
+                else if (char.IsLower(formula[i]))
                 {
                     temp += formula[i];
                     resultado.Add(temp);
                     temp = "";
                 }
 
-
-                if (i == (formula.Length - 1))  // Esto solamente se usa cuando el ultimo elemento de la formula tiene valencia 1
+                // Esto solamente se usa cuando el ultimo elemento de la formula tiene valencia 1
+                if (i == (formula.Length - 1))
                 {
                     if (temp.Length > 0)
                         resultado.Add(temp);
                     resultado.Add("1");
                 }
-
             }
-
-            else // Cuando detecta un nuemro si la solucion temporal tiene algo se añade y a continuacion el proximo valor
+            // Cuando detecta un nuemro si la solucion temporal tiene algo se añade y a continuacion el proximo valor
+            else
             {
                 if (temp.Length > 0)
                     resultado.Add(temp);
@@ -158,45 +132,16 @@ public class Controlador : MonoBehaviour
             }
         }
 
-        //Ordenamos la formula 
+        //Ordenamos la formula
         resultado = SortFormula(resultado);
         return resultado;
     }
-    /*
-    * Ejemplo de la funcion anterior para H2SO4
-    * 
-    * Comenzamos con H. 
-    *  Pasa el primer if (es una letra)
-    *      Pasa el segundo if (es mayuscula)
-    *          No pasa el tercer if (cont_uppercase esta a 0)
-    *          Lo añadimos a temp e incrementamos cont_uppercase
-    * 
-    * Seguimos con '2'
-    *  No pasa el primer if. Se va al else
-    *  Añade lo que lleve en temp a la solucion y el 2 (Solucion: "H","2")
-    *  Ponemos cont_uppercase a 0 y vaciamos temp
-    *  
-    * Seguimos con S
-    *  Sucede igual que con H
-    * 
-    * Seguimos con O
-    *  Pasa el primer, segundo y tercer if (cont_uppercase esta a 1)
-    *  Añadimos lo que tenemos a la solucion (Solucion: "H","2","S")
-    *  Añadimos el valor 1 indicando que es la valencia del S (Solucion: "H","2","S","1")
-    *  Vaciamos temp y ponemos cont_uppercase a 0
-    *  
-    * Seguioms con '4'
-    *  Sucede igual que con '2', pero esta vez si pasa el if (Solucion: "H","2","S","1","O")
-    *  Añade el ultimo valor
-    *  
-    * Solucion: "H","2","S","1","O","4"
-    *  
-    */
 
     /*
-     * Esta funcion ordena la formula de forma que el elemento princiapl es el primero, 
+     * Esta funcion ordena la formula de forma que el elemento princiapl es el primero,
      * luego oxigeno y por ultimo hidrogeno
      */
+
     private List<string> SortFormula(List<string> f)
     {
         List<string> formula_ordenada = new List<string>();
@@ -204,8 +149,8 @@ public class Controlador : MonoBehaviour
         //Buscamos elemento central
         for (int i = 0; i < f.Count; i++)
         {
-
-            if ((f[i] != "H") && (f[i] != "O") && (!char.IsDigit(f[i], 0))) // IsDigit comprueba si un char se puede convertir a un valor numerico
+            // IsDigit comprueba si un char se puede convertir a un valor numerico
+            if ((f[i] != "H") && (f[i] != "O") && (!char.IsDigit(f[i], 0)))
             {
                 formula_ordenada.Add(f[i]);
                 formula_ordenada.Add(f[i + 1]);
@@ -213,7 +158,7 @@ public class Controlador : MonoBehaviour
         }
         //Añadimos el oxigeno (si hay)
         int index = f.IndexOf("O");
-        if (index != -1)    // IndexOf devuelve -1 si no encuentra nada 
+        if (index != -1)    // IndexOf devuelve -1 si no encuentra nada
         {
             formula_ordenada.Add(f[index]);
             formula_ordenada.Add(f[index + 1]);
@@ -232,6 +177,7 @@ public class Controlador : MonoBehaviour
      * El algorimo de dibujado principal
      * Determina el tipo de formula y la dibuja
      */
+
     private void Algoritmo(List<string> f)
     {
         //Determinar el tipo de formula
@@ -242,31 +188,36 @@ public class Controlador : MonoBehaviour
             case 1:
 
                 break;
+
             case 2:
                 // Crear tipo 2
                 break;
+
             case 3:
                 dibujarTipo3(f);
                 break;
+
             case 4:
                 // Crear tipo 4
                 break;
+
             default:
                 // No hacer nada (lo más facil no cabe duda)
                 break;
         }
     }
 
-
     /**
-     * Determina el tipo de una formula 
+     * Determina el tipo de una formula segun su estructura
      */
+
     public int GetTipo(List<string> f)
     {
-        bool tiene_dos_elementos = false; // Quiere decir que tiene dos elementos que no sean O o H
+        bool tiene_dos_elementos = false;
         bool tiene_oxigeno = false;
         bool tiene_hidrogeno = false;
         int tipo = 0;
+
         //Varaibles auxiliares
         int cont = 0;
 
@@ -329,7 +280,6 @@ public class Controlador : MonoBehaviour
             segundo_elemento_a_crear = f[0];
         }
 
-
         float radio = crearElemento(primer_elemento_a_crear, object_B);
         float radio_esfera_1 = radio;
 
@@ -356,7 +306,6 @@ public class Controlador : MonoBehaviour
             primera.transform.GetChild(i + aux).Translate(-(radio_esfera_1 / 2) - (radio / 3), 0, 0);
             primera.transform.GetChild(i + aux).transform.RotateAround(primera.transform.position, new Vector3(0, 1, 0), (360.0f / n_2) * i);
         }
-
     }
 
     private float crearElemento(string tipo, GameObject padre)
@@ -383,13 +332,11 @@ public class Controlador : MonoBehaviour
         return radio / 500.0f;
     }
 
-
-
-
     /*
      * Método que se ejecuta cuando se pulsa el botón Introducir.
-     * Cambiar para lo que se desee    
+     * Cambiar para lo que se desee
     */
+
     public void show()
     {
         Debug.Log("Se ha insertado el componente " + input);
@@ -402,18 +349,18 @@ public class Controlador : MonoBehaviour
             GameObject.Destroy(obj);
         }
 
-
         Algoritmo(formula);
-
     }
 
-    /*Método que se ejecutará cada vez que el valor del campo de texto se modifique en tiempo real
-      El parámetro string esta cambiado para que lo vaya cogiendo dinámicamente, en caso de que se quiera utilizar
-      o introducir un string manual, cambiar el onValueChanged de Field por la llamada al mismo método pero 
-      con el parámetro string que se le quiera poner
-      
-      IMPORTANTE: el input = s es imprescindible por lo tanto, no cambiar bajo ningun concepto
-    */
+    /*
+     * Método que se ejecutará cada vez que el valor del campo de texto se modifique en tiempo real
+     * El parámetro string esta cambiado para que lo vaya cogiendo dinámicamente, en caso de que se quiera utilizar
+     * o introducir un string manual, cambiar el onValueChanged de Field por la llamada al mismo método pero
+     * con el parámetro string que se le quiera poner
+     *
+     * IMPORTANTE: el input = s es imprescindible por lo tanto, no cambiar bajo ningun concepto
+     */
+
     public void inputCapture(string s)
     {
         input = s;
@@ -426,18 +373,12 @@ public class Controlador : MonoBehaviour
         }
         else
         {
-
             if (input == "Fe2S3" || input == "NaCl" || input == "Li2S" || input == "PbCl2")
             {
                 button.GetComponent<Button>().interactable = true;
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
                 probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
                 probeText.GetComponent<Text>().color = Color.green;
-
-                //List<string> formula = readFormula("NaCl");
-                //List<string> formula = readFormula("Fe2S3");
-                //List<string> formula = readFormula("Li2S");
-                //List<string> formula = readFormula("PbCl2");
             }
             else
             {
@@ -451,4 +392,3 @@ public class Controlador : MonoBehaviour
         }
     }
 }
-

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Animacion
 {
@@ -8,12 +6,12 @@ public class Animacion
 
     [Space]
     public int m_minScale;
+
     public int m_maxScale;
 
     private float initialFingersDistance;
 
     private Vector3 initialScale;
-
 
     public void setTarget(GameObject obj)
     {
@@ -22,7 +20,7 @@ public class Animacion
 
     public void automaticRotation()
     {
-        this.Object.transform.Rotate(new Vector3(0, 1, 0), 70 * Time.deltaTime);
+        Object.transform.Rotate(new Vector3(0, 1, 0), 70 * Time.deltaTime);
     }
 
     public void scalingEvent()
@@ -39,7 +37,6 @@ public class Animacion
             }
             else if (t1.phase == TouchPhase.Moved || t2.phase == TouchPhase.Moved)
             {
-
                 float currentFingersDistance = Vector2.Distance(t1.position, t2.position);
                 var scaleFactor = currentFingersDistance / initialFingersDistance;
 
@@ -51,6 +48,5 @@ public class Animacion
                 Object.transform.localScale = m_scale;
             }
         }
-
     }
 }

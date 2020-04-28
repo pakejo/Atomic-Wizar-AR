@@ -47,7 +47,7 @@ public class AddVuforiaEnginePackage
         SetVuforiaVersion(manifest);
 
         manifest.JsonSerialize(sManifestJsonPath);
-        
+
         AssetDatabase.Refresh();
     }
 
@@ -56,9 +56,9 @@ public class AddVuforiaEnginePackage
         var dependencies = manifest.Dependencies.Split(',').ToList();
 
         var versionSet = false;
-        for(var i = 0; i < dependencies.Count; i++)
+        for (var i = 0; i < dependencies.Count; i++)
         {
-            if(!dependencies[i].Contains(PACKAGE_KEY))
+            if (!dependencies[i].Contains(PACKAGE_KEY))
                 continue;
 
             var kvp = dependencies[i].Split(':');
@@ -72,7 +72,7 @@ public class AddVuforiaEnginePackage
 
         if (!versionSet)
             dependencies.Insert(0, $"\n    {PACKAGE_KEY}: \"{VUFORIA_VERSION}\"");
-        
+
 
         manifest.Dependencies = string.Join(",", dependencies);
     }
@@ -99,7 +99,7 @@ public class AddVuforiaEnginePackage
         public void JsonSerialize(string path)
         {
             var jsonString = JsonUtility.ToJson(
-                new UnitySerializableManifest {scopedRegistries = ScopedRegistries, dependencies = new DependencyPlaceholder()},
+                new UnitySerializableManifest { scopedRegistries = ScopedRegistries, dependencies = new DependencyPlaceholder() },
                 true);
 
             var startIndex = GetDependenciesStart(jsonString);
@@ -176,7 +176,7 @@ public class AddVuforiaEnginePackage
             if (!(obj is ScopedRegistry))
                 return false;
 
-            var other = (ScopedRegistry) obj;
+            var other = (ScopedRegistry)obj;
 
             return name == other.name &&
                    url == other.url &&

@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
 
 namespace TMPro.Examples
@@ -29,9 +29,10 @@ namespace TMPro.Examples
 
         private AnimationCurve CopyAnimationCurve(AnimationCurve curve)
         {
-            AnimationCurve newCurve = new AnimationCurve();
-
-            newCurve.keys = curve.keys;
+            AnimationCurve newCurve = new AnimationCurve
+            {
+                keys = curve.keys
+            };
 
             return newCurve;
         }
