@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,8 +14,11 @@ public class Controlador : MonoBehaviour
 {
     private GameObject object_B, button, inputField, probeText;
     private SQLiteHelper conexion_BD;
-    private Animacion animaciones;
+    private Animaciones animaciones;
+    private ModoDibujado modoDibujado;
     public string input;
+
+    public GameObject Object_B { get => object_B; set => object_B = value; }
 
     /*
      * Función de Unity usada para inicializar los datos de la clase
@@ -22,11 +26,14 @@ public class Controlador : MonoBehaviour
 
     private void Start()
     {
-        animaciones = new Animacion();
+        animaciones = new Animaciones();
         conexion_BD = new SQLiteHelper();
 
         // Obtenemos los objetos que representan a las cartas
         object_B = transform.GetChild(1).gameObject;
+
+        // Por defecto, los dibujados se haran de forma automatica
+        modoDibujado = ModoDibujado.PASO_A_PASO;
     }
 
     /*
@@ -38,9 +45,11 @@ public class Controlador : MonoBehaviour
         if (object_B.transform.childCount > 0)
         {
             animaciones.setTarget(object_B.transform.GetChild(0).gameObject);
-            animaciones.automaticRotation();
+            animaciones.activarRotacionAutomatica();
         }
     }
+
+
 
     /*
      * Funcion que lee y transcribe una formula.
@@ -178,40 +187,38 @@ public class Controlador : MonoBehaviour
      * Determina el tipo de formula y la dibuja
      */
 
-    private void Algoritmo(List<string> f)
+    private IEnumerator DibujarFormula(List<string> formula)
     {
-        //Determinar el tipo de formula
-        int tipo = GetTipo(f);
+        IDibujado estrategia = null;
+        int NumeroDeEstrategia = obtenerElTipoDeFormula(formula);
 
-        switch (tipo)
+        Dictionary<int, Func<IDibujado>> estrategiasDeDibujado = new Dictionary<int, Func<IDibujado>>()
         {
-            case 1:
+            {3, () => new DibujadoTipo3() }
+        };
 
-                break;
-
-            case 2:
-                // Crear tipo 2
-                break;
-
-            case 3:
-                dibujarTipo3(f);
-                break;
-
-            case 4:
-                // Crear tipo 4
-                break;
-
-            default:
-                // No hacer nada (lo más facil no cabe duda)
-                break;
+        try
+        {
+            estrategia = estrategiasDeDibujado[NumeroDeEstrategia]();
+            estrategia.AsignarControlador(this);
         }
+        catch (ArgumentException)
+        {
+            Debug.LogError("Excepcion en el dibujado. No existe un método que dibuje esa fórmula");
+        }
+
+        if (estrategia != null)
+        {
+          yield return StartCoroutine(estrategia.Dibuja(formula, modoDibujado));
+        }
+
     }
 
     /**
      * Determina el tipo de una formula segun su estructura
      */
 
-    public int GetTipo(List<string> f)
+    public int obtenerElTipoDeFormula(List<string> f)
     {
         bool tiene_dos_elementos = false;
         bool tiene_oxigeno = false;
@@ -254,73 +261,19 @@ public class Controlador : MonoBehaviour
         return tipo;
     }
 
-    private void dibujarTipo3(List<string> f)
-    {
-        //Paso 1: Dibujar elemento de menor numero
-        int a = Convert.ToInt32(f[1]);
-        int b = Convert.ToInt32(f[3]);
-        int n_1;
-        int n_2;
-        int aux;
-        string primer_elemento_a_crear;
-        string segundo_elemento_a_crear;
-
-        if (a <= b)
-        {
-            n_1 = a;
-            n_2 = b;
-            primer_elemento_a_crear = f[0];
-            segundo_elemento_a_crear = f[2];
-        }
-        else
-        {
-            n_1 = b;
-            n_2 = a;
-            primer_elemento_a_crear = f[2];
-            segundo_elemento_a_crear = f[0];
-        }
-
-        float radio = crearElemento(primer_elemento_a_crear, object_B);
-        float radio_esfera_1 = radio;
-
-        //Obtenenmos su referencia para trabajar sobre el resto de esferas
-        GameObject primera = object_B.transform.GetChild(0).gameObject;
-        primera.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.5f, object_B.transform.position.z);
-
-        //Añadimos las esferas restantes del mismo tipo
-        for (int i = 1; i < n_1; i++)
-        {
-            radio = crearElemento(primer_elemento_a_crear, primera);
-            primera.transform.GetChild(i - 1).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
-            primera.transform.GetChild(i - 1).Translate(radio / 2, 0, 0);
-            //primera.transform.GetChild(i - 1).transform.RotateAroundLocal(new Vector3(0, 1, 0), (360 / n_1) * i);
-        }
-
-        // Añadimos el segundo tipo
-        aux = n_1 - 1;
-
-        for (int i = 0; i < n_2; i++)
-        {
-            radio = crearElemento(segundo_elemento_a_crear, primera);
-            primera.transform.GetChild(i + aux).transform.position = new Vector3(primera.transform.position.x, primera.transform.position.y, primera.transform.position.z);
-            primera.transform.GetChild(i + aux).Translate(-(radio_esfera_1 / 2) - (radio / 3), 0, 0);
-            primera.transform.GetChild(i + aux).transform.RotateAround(primera.transform.position, new Vector3(0, 1, 0), (360.0f / n_2) * i);
-        }
-    }
-
-    private float crearElemento(string tipo, GameObject padre)
+    public float crearElemento(string tipo, GameObject padre)
     {
         // Crear la primitiva
         GameObject objeto = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
         // Obtener el material
-        string material_objeto = conexion_BD.GetMaterialOf(tipo);
+        string material_objeto = conexion_BD.ObtenerMaterialDelElemento(tipo);
         string ruta_material = "Materials/" + material_objeto;
         Material mat = Resources.Load<Material>(ruta_material);
 
         // Obtener el radio
         int radio;
-        List<string> info = conexion_BD.GetInfoByID(tipo);
+        List<string> info = conexion_BD.obtenerInformacionDeElementoConID(tipo);
         radio = Convert.ToInt32(info[2]);
 
         // Transformaciones del objeto
@@ -349,7 +302,7 @@ public class Controlador : MonoBehaviour
             GameObject.Destroy(obj);
         }
 
-        Algoritmo(formula);
+        StartCoroutine(DibujarFormula(formula));
     }
 
     /*

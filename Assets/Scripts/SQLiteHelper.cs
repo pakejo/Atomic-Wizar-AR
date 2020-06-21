@@ -2,6 +2,11 @@
 using System.Data;
 using Mono.Data.Sqlite;
 using UnityEngine;
+using System;
+#if UNITY_ANDROID
+using System.IO;
+using UnityEngine.Networking;
+#endif
 
 /*
  * #########################################################################
@@ -11,7 +16,7 @@ using UnityEngine;
 
 public class SQLiteHelper
 {
-    private readonly IDbConnection dbConnection;
+    private readonly IDbConnection conexionConLaBaseDeDatos;
 
     /*
      * Constructor de la clase. Crea una conexion a la base de datos y la abre
@@ -19,25 +24,29 @@ public class SQLiteHelper
 
     public SQLiteHelper()
     {
-        string filepath = Application.persistentDataPath + "/Test.db";
+        string directorioDeLaBaseDeDatos = Application.persistentDataPath + "/Test.db";
 
 #if UNITY_EDITOR
-        filepath = Application.streamingAssetsPath + "/Test.db";
+        directorioDeLaBaseDeDatos = Application.streamingAssetsPath + "/Test.db";
+
 #elif UNITY_ANDROID
 
-        //if(!File.Exists(filepath))
-       // {
+        //DateTime anteriorFechaModificacion = File.GetLastWriteTime(Application.persistentDataPath + "/Test.db");
+        //DateTime ultimaFechaModificacion = File.GetLastWriteTime(Application.streamingAssetsPath + "/Test.db");
+
+        //if (anteriorFechaModificacion < ultimaFechaModificacion)
+        //{
             UnityWebRequest www = UnityWebRequest.Get("jar:file://" + Application.dataPath + "!/assets/" + "Test.db");
             www.SendWebRequest();
             while(!www.isDone) { }
 
-            File.WriteAllBytes(filepath, www.downloadHandler.data);
-       // }
+            File.WriteAllBytes(directorioDeLaBaseDeDatos, www.downloadHandler.data);
+        //}
 #endif
 
-        string connection = "URI=file:" + filepath;
-        dbConnection = new SqliteConnection(connection);
-        dbConnection.Open();
+        string pathArchivoBaseDeDatos = "URI=file:" + directorioDeLaBaseDeDatos;
+        conexionConLaBaseDeDatos = new SqliteConnection(pathArchivoBaseDeDatos);
+        conexionConLaBaseDeDatos.Open();
     }
 
     /*
@@ -47,7 +56,7 @@ public class SQLiteHelper
     ~SQLiteHelper()
     {
         Debug.Log("Database connection finished");
-        dbConnection.Close();
+        conexionConLaBaseDeDatos.Close();
     }
 
     /*
@@ -56,30 +65,30 @@ public class SQLiteHelper
      * El string estará vacío si no hay ninguna entrada en la tabla con ese id
      */
 
-    public List<string> GetInfoByID(string id)
+    public List<string> obtenerInformacionDeElementoConID(string id)
     {
-        List<string> info = new List<string>();
-        IDbCommand dbcmd = dbConnection.CreateCommand();   // Para usar comandos SQL
+        List<string> informacionRecogida = new List<string>();
+        IDbCommand dbcmd = conexionConLaBaseDeDatos.CreateCommand();   // Para usar comandos SQL
         dbcmd.CommandText = "SELECT * FROM Elementos WHERE Simbolo = '" + id + "'";
         IDataReader reader = dbcmd.ExecuteReader();
 
         while (reader.Read())
         {
-            info.Add(reader[0].ToString());   // Simbolo elemento
-            info.Add(reader[1].ToString());   // Valencias
-            info.Add(reader[2].ToString());   // Radio atomico
+            informacionRecogida.Add(reader[0].ToString());   // Simbolo elemento
+            informacionRecogida.Add(reader[1].ToString());   // Valencias
+            informacionRecogida.Add(reader[2].ToString());   // Radio atomico
         }
-        return info;
+        return informacionRecogida;
     }
 
     /*
      * Función que devuelve el material asociado a u elemento
      */
 
-    public string GetMaterialOf(string element)
+    public string ObtenerMaterialDelElemento(string element)
     {
         string material = "";
-        IDbCommand dbcmd = dbConnection.CreateCommand();   // Para usar comandos SQL
+        IDbCommand dbcmd = conexionConLaBaseDeDatos.CreateCommand();   // Para usar comandos SQL
 
         if (element.Length > 2)
             dbcmd.CommandText = "SELECT material FROM Materiales WHERE ID = '" + element + "'";

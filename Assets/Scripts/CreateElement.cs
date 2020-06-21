@@ -4,43 +4,42 @@ using UnityEngine.EventSystems;
 public class CreateElement : MonoBehaviour
 {
     // Objetos de la escena
-    private GameObject object_A;
-
-    private GameObject object_B;
-    private GameObject objeto;
-    private SQLiteHelper conexion_BD;
+    private GameObject objetoDeEscenaA;
+    private GameObject objetoDeEscenaB;
+    private GameObject nuevoObjetoEnEscena;
+    private SQLiteHelper conexionConLaBaseDeDatos;
 
     public CreateElement(GameObject object_A, GameObject object_B)
     {
-        this.object_A = object_A;
-        this.object_B = object_B;
+        this.objetoDeEscenaA = object_A;
+        this.objetoDeEscenaB = object_B;
     }
 
     public void Create()
     {
-        object_A = transform.GetChild(0).gameObject;
-        object_B = transform.GetChild(1).gameObject;
+        objetoDeEscenaA = transform.GetChild(0).gameObject;
+        objetoDeEscenaB = transform.GetChild(1).gameObject;
 
         string name = EventSystem.current.currentSelectedGameObject.name;
-        CrearNuevoAtomoElemento(name);
+        crearNuevoAtomoDe(name);
     }
 
-    private Material buscarMaterial(string elemento)
+    private Material buscarMaterialDelElemento(string elemento)
     {
-        conexion_BD = new SQLiteHelper();
-        string material_objeto = conexion_BD.GetMaterialOf(elemento);
+        conexionConLaBaseDeDatos = new SQLiteHelper();
+        string material_objeto = conexionConLaBaseDeDatos.ObtenerMaterialDelElemento(elemento);
         string ruta_material = "Materials/" + material_objeto;
         Material material = Resources.Load<Material>(ruta_material);
         return material;
     }
 
-    public void CrearNuevoAtomoElemento(string elemento)
+    public void crearNuevoAtomoDe(string elemento)
     {
-        objeto = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        Material mat = buscarMaterial(elemento);
-        objeto.transform.GetComponent<Renderer>().material = mat;
-        objeto.transform.parent = object_B.transform;
-        objeto.transform.localScale = new Vector3(0.1325715f, 0.1325715f, 0.1325715f);
-        objeto.transform.position = new Vector3(object_B.transform.position.x, object_B.transform.position.y + 0.4f, object_B.transform.position.z);
+        nuevoObjetoEnEscena = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Material materialNuevoAtomo = buscarMaterialDelElemento(elemento);
+        nuevoObjetoEnEscena.transform.GetComponent<Renderer>().material = materialNuevoAtomo;
+        nuevoObjetoEnEscena.transform.parent = objetoDeEscenaB.transform;
+        nuevoObjetoEnEscena.transform.localScale = new Vector3(0.1325715f, 0.1325715f, 0.1325715f);
+        nuevoObjetoEnEscena.transform.position = new Vector3(objetoDeEscenaB.transform.position.x, objetoDeEscenaB.transform.position.y + 0.4f, objetoDeEscenaB.transform.position.z);
     }
 }
