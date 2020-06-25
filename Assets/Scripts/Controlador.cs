@@ -12,13 +12,14 @@ using UnityEngine.UI;
 
 public class Controlador : MonoBehaviour
 {
-    private GameObject object_B, button, inputField, probeText;
+    private GameObject button, inputField, probeText;
     private SQLiteHelper conexion_BD;
     private Animaciones animaciones;
     private ModoDibujado modoDibujado;
+    private Dictionary<int, Func<TipoDibujado>> estrategiasDeDibujado;
     public string input;
 
-    public GameObject Object_B { get => object_B; set => object_B = value; }
+    public GameObject Object_B { get; set; }
 
     /*
      * Función de Unity usada para inicializar los datos de la clase
@@ -26,25 +27,33 @@ public class Controlador : MonoBehaviour
 
     private void Start()
     {
+        // Animaciones sobre los objetos de la escena
         animaciones = new Animaciones();
+
+        // Conexion con la base de datos
         conexion_BD = new SQLiteHelper();
 
         // Obtenemos los objetos que representan a las cartas
-        object_B = transform.GetChild(1).gameObject;
+        Object_B = transform.GetChild(1).gameObject;
 
         // Por defecto, los dibujados se haran de forma automatica
-        modoDibujado = ModoDibujado.PASO_A_PASO;
+        modoDibujado = ModoDibujado.AUTOMATICO;
+
+        // Estrategias de dibujado (usado por el patron strategy)
+        estrategiasDeDibujado = new Dictionary<int, Func<TipoDibujado>>()
+        {
+            {3, () => new DibujadoTipo3(this) }
+        };
     }
 
     /*
      * Función de Unity llamada durante cada frame para actualizar la escena
      */
-
     private void Update()
     {
-        if (object_B.transform.childCount > 0)
+        if (Object_B.transform.childCount > 0)
         {
-            animaciones.setTarget(object_B.transform.GetChild(0).gameObject);
+            animaciones.setTarget(Object_B.transform.GetChild(0).gameObject);
             animaciones.activarRotacionAutomatica();
         }
     }
@@ -189,18 +198,12 @@ public class Controlador : MonoBehaviour
 
     private IEnumerator DibujarFormula(List<string> formula)
     {
-        IDibujado estrategia = null;
+        TipoDibujado estrategia = null;
         int NumeroDeEstrategia = obtenerElTipoDeFormula(formula);
-
-        Dictionary<int, Func<IDibujado>> estrategiasDeDibujado = new Dictionary<int, Func<IDibujado>>()
-        {
-            {3, () => new DibujadoTipo3() }
-        };
 
         try
         {
             estrategia = estrategiasDeDibujado[NumeroDeEstrategia]();
-            estrategia.AsignarControlador(this);
         }
         catch (ArgumentException)
         {
@@ -208,9 +211,7 @@ public class Controlador : MonoBehaviour
         }
 
         if (estrategia != null)
-        {
           yield return StartCoroutine(estrategia.Dibuja(formula, modoDibujado));
-        }
 
     }
 
@@ -295,9 +296,9 @@ public class Controlador : MonoBehaviour
         Debug.Log("Se ha insertado el componente " + input);
         List<string> formula = readFormula(input);
 
-        if (object_B.transform.childCount > 0)
+        if (Object_B.transform.childCount > 0)
         {
-            GameObject obj = object_B.transform.GetChild(0).gameObject;
+            GameObject obj = Object_B.transform.GetChild(0).gameObject;
             obj.transform.parent = null;
             GameObject.Destroy(obj);
         }

@@ -3,16 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DibujadoTipo3 : IDibujado
+public class DibujadoTipo3 : TipoDibujado
 {
-    private Controlador controlador;
-
-    public void AsignarControlador(Controlador controlador)
+    public DibujadoTipo3(Controlador controlador) : base(controlador)
     {
-        this.controlador = controlador;
     }
 
-    public IEnumerator Dibuja(List<string> formula, ModoDibujado modoDibujado)
+    public override IEnumerator Dibuja(List<string> formula, ModoDibujado modoDibujado)
     {
         //Paso 1: Dibujar elemento de menor numero
         int a = Convert.ToInt32(formula[1]);
