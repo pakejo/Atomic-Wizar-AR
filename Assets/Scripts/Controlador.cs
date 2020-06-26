@@ -42,6 +42,7 @@ public class Controlador : MonoBehaviour
         // Estrategias de dibujado (usado por el patron strategy)
         estrategiasDeDibujado = new Dictionary<int, Func<TipoDibujado>>()
         {
+            {1, () => new DibujadoTipo1(this) },
             {3, () => new DibujadoTipo3(this) }
         };
     }
@@ -49,6 +50,7 @@ public class Controlador : MonoBehaviour
     /*
      * Función de Unity llamada durante cada frame para actualizar la escena
      */
+
     private void Update()
     {
         if (Object_B.transform.childCount > 0)
@@ -57,8 +59,6 @@ public class Controlador : MonoBehaviour
             animaciones.activarRotacionAutomatica();
         }
     }
-
-
 
     /*
      * Funcion que lee y transcribe una formula.
@@ -211,8 +211,7 @@ public class Controlador : MonoBehaviour
         }
 
         if (estrategia != null)
-          yield return StartCoroutine(estrategia.Dibuja(formula, modoDibujado));
-
+            yield return StartCoroutine(estrategia.Dibuja(formula, modoDibujado));
     }
 
     /**
@@ -234,9 +233,9 @@ public class Controlador : MonoBehaviour
         {
             if (f[i] != "H" && f[i] != "O")
                 cont++;
-            else if (f[i] != "H")
+            else if (f[i] == "H")
                 tiene_hidrogeno = true;
-            else if (f[i] != "O")
+            else if (f[i] == "O")
                 tiene_oxigeno = true;
         }
 
@@ -328,6 +327,13 @@ public class Controlador : MonoBehaviour
         else
         {
             if (input == "Fe2S3" || input == "NaCl" || input == "Li2S" || input == "PbCl2")
+            {
+                button.GetComponent<Button>().interactable = true;
+                inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);
+                probeText.GetComponent<Text>().text = "La fórmula introducida es correcta";
+                probeText.GetComponent<Text>().color = Color.green;
+            }
+            else if (input == "HCl" || input == "H2S" || input == "NH3" || input == "CH4")
             {
                 button.GetComponent<Button>().interactable = true;
                 inputField.GetComponent<UnityEngine.UI.Image>().color = new Color32(32, 250, 75, 145);

@@ -5,6 +5,7 @@ public class CreateElement : MonoBehaviour
 {
     // Objetos de la escena
     private GameObject objetoDeEscenaA;
+
     private GameObject objetoDeEscenaB;
     private GameObject nuevoObjetoEnEscena;
     private SQLiteHelper conexionConLaBaseDeDatos;

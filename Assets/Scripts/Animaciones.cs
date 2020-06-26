@@ -13,5 +13,4 @@ public class Animaciones
     {
         objetoParaAnimar.transform.Rotate(new Vector3(0, 1, 0), 70 * Time.deltaTime);
     }
-
 }
