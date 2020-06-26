@@ -16,6 +16,7 @@ public class Controlador : MonoBehaviour
     private SQLiteHelper conexion_BD;
     private Animaciones animaciones;
     private ModoDibujado modoDibujado;
+    private Boolean activated = false;
     private Dictionary<int, Func<TipoDibujado>> estrategiasDeDibujado;
     public string input;
 
@@ -349,6 +350,28 @@ public class Controlador : MonoBehaviour
             }
 
             Debug.Log(input);
+        }
+    }
+
+    public void changeDrawMode()
+    {
+        button = GameObject.Find("PorPasos");
+        probeText = GameObject.Find("PorPasosText");
+
+        if (!activated)
+        {
+            modoDibujado = ModoDibujado.PASO_A_PASO;
+            button.GetComponent<Image>().color = Color.green;
+            probeText.GetComponent<Text>().color = new Color32(32, 24, 229, 255);
+            activated = true;
+        }
+        else
+        {
+            modoDibujado = ModoDibujado.AUTOMATICO;
+            button.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+            probeText.GetComponent<Text>().color = new Color32(0,0,0,255);
+            activated = false;
+
         }
     }
 }
