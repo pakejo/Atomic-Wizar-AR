@@ -21,6 +21,11 @@ public class Controlador : MonoBehaviour
 
     public GameObject Object_B { get; set; }
 
+    public void setModoDibujado(ModoDibujado nuevoModo)
+    {
+        this.modoDibujado = nuevoModo; 
+    }
+
     /*
      * Función de Unity usada para inicializar los datos de la clase
      */
@@ -351,4 +356,5 @@ public class Controlador : MonoBehaviour
             Debug.Log(input);
         }
     }
+
 }
